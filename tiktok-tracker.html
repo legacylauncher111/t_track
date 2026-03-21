@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TikTrack</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07080c;--panel:#0d0f16;--panel2:#12151f;--panel3:#181b28;
+  --border:rgba(255,255,255,0.055);--border2:rgba(255,255,255,0.1);
+  --acc:#a855f7;--acc2:#7c3aed;--acc-d:rgba(168,85,247,0.13);--acc-b:rgba(168,85,247,0.3);
+  --pink:#f472b6;--pink-d:rgba(244,114,182,0.12);--pink-b:rgba(244,114,182,0.28);
+  --teal:#22d3ee;--grn:#4ade80;--red:#f87171;--red-d:rgba(248,113,113,0.11);--amb:#fbbf24;
+  --text:#dde4f0;--text2:#8896a8;--text3:#3e4d60;
+  --sans:'Inter',sans-serif;--mono:'Share Tech Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;display:flex;flex-direction:column}
+header{display:flex;align-items:center;gap:12px;padding:0 16px;height:48px;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0;z-index:20}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-ic{width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,var(--acc-d),var(--pink-d));border:1px solid var(--acc-b);display:flex;align-items:center;justify-content:center;font-size:16px}
+.logo-n{font-size:13px;font-weight:700;color:#fff}
+.logo-s{font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:1px}
+.h-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.live-pill{display:flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:10px;color:var(--text3);font-family:var(--mono)}
+.ld{width:6px;height:6px;border-radius:50%;background:var(--text3)}
+.ld.on{background:var(--acc);box-shadow:0 0 7px rgba(168,85,247,.5);animation:pu 2s infinite}
+@keyframes pu{0%,100%{opacity:1}50%{opacity:.4}}
+.hbtn{height:28px;padding:0 10px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-size:11px;font-family:var(--sans);transition:all .12s}
+.hbtn:hover{background:var(--panel2);color:var(--text)}
+.layout{display:grid;grid-template-columns:240px 1fr;flex:1;overflow:hidden}
+.sb{background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.sb-hd{padding:10px 12px 8px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.sb-ttl{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.14em;text-transform:uppercase}
+.sb-cnt{font-size:10px;font-family:var(--mono);color:var(--text3);background:var(--panel2);border-radius:10px;padding:2px 7px}
+.sb-list{flex:1;overflow-y:auto;padding:6px}
+.sb-list::-webkit-scrollbar{width:3px}
+.sb-list::-webkit-scrollbar-thumb{background:var(--panel3);border-radius:2px}
+.sb-nil{padding:24px 8px;text-align:center;color:var(--text3);font-size:11px;line-height:1.9}
+.pi{display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:8px;cursor:pointer;border:1px solid transparent;margin-bottom:4px;transition:all .12s;position:relative}
+.pi:hover{background:var(--panel2)}
+.pi.sel{background:var(--panel2);border-color:var(--acc-b)}
+.pi.sel::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:60%;background:var(--acc);border-radius:0 2px 2px 0}
+.pi-av{width:36px;height:36px;border-radius:50%;background:var(--panel3);border:2px solid var(--border2);flex-shrink:0;overflow:hidden;position:relative}
+.pi-av img{width:100%;height:100%;object-fit:cover;display:block}
+.pi-av-l{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--text3)}
+.pi-vbadge{position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;background:var(--acc);border-radius:50%;border:2px solid var(--panel);display:flex;align-items:center;justify-content:center;font-size:7px;color:#fff}
+.pi-info{flex:1;min-width:0}
+.pi-n{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pi-s{font-size:10px;color:var(--text3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pi-del{opacity:0;background:none;border:none;color:var(--text3);cursor:pointer;padding:3px 5px;border-radius:4px;font-size:12px;transition:all .1s;flex-shrink:0}
+.pi:hover .pi-del{opacity:1}
+.pi-del:hover{color:var(--red);background:var(--red-d)}
+.sb-bt{padding:10px;border-top:1px solid var(--border)}
+.ainp{width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:var(--sans);font-size:12px;padding:7px 10px;outline:none;transition:border-color .15s;margin-bottom:7px}
+.ainp::placeholder{color:var(--text3)}
+.ainp:focus{border-color:var(--acc-b)}
+.abtn{width:100%;height:32px;border-radius:7px;border:none;background:linear-gradient(135deg,var(--acc),var(--pink));color:#fff;font-weight:600;font-size:12px;cursor:pointer;font-family:var(--sans);transition:opacity .15s}
+.abtn:hover{opacity:.85}
+.main{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--text3)}
+.e-ico{font-size:36px;opacity:.18}
+.detail{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.dh{padding:14px 20px 0;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0}
+.dh-top{display:flex;align-items:flex-start;gap:14px;margin-bottom:12px}
+.d-av-wrap{position:relative;flex-shrink:0}
+.d-av{width:76px;height:76px;border-radius:50%;background:var(--panel3);flex-shrink:0;overflow:hidden;border:3px solid var(--acc-b)}
+.d-av img{width:100%;height:100%;object-fit:cover;display:block}
+.d-av-l{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:var(--text3)}
+.d-info{flex:1;min-width:0}
+.d-name{font-size:19px;font-weight:700;color:#fff;margin-bottom:2px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.d-verified{color:var(--acc);font-size:14px;background:var(--acc-d);border:1px solid var(--acc-b);border-radius:20px;padding:1px 7px;font-size:10px;font-weight:600}
+.d-handle{font-size:11px;color:var(--text3);margin-bottom:6px;font-family:var(--mono)}
+.d-bio{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:8px;max-width:500px}
+.d-pills{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:4px;border-radius:20px;padding:3px 9px;font-size:10px;font-weight:500;white-space:nowrap}
+.p-pub{background:var(--acc-d);border:1px solid var(--acc-b);color:var(--acc)}
+.p-priv{background:var(--red-d);border:1px solid rgba(248,113,113,.25);color:var(--red)}
+.p-tag{background:var(--panel2);border:1px solid var(--border);color:var(--text2)}
+.d-acts{display:flex;gap:6px;flex-shrink:0}
+.dbtn{height:28px;padding:0 10px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-size:11px;font-family:var(--sans);transition:all .12s;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+.dbtn:hover{background:var(--panel2);color:var(--text)}
+.dbtn.acc{color:var(--acc);border-color:var(--acc-b)}
+.sstrip{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border);border-top:1px solid var(--border)}
+.sstat{background:var(--panel);padding:9px 6px;text-align:center}
+.sval{font-size:16px;font-weight:700;color:#fff;font-family:var(--mono);line-height:1}
+.slbl{font-size:9px;color:var(--text3);margin-top:3px;text-transform:uppercase;letter-spacing:.07em}
+.sdelta{font-size:9px;margin-top:2px;font-family:var(--mono)}
+.du{color:var(--grn)}.dd{color:var(--red)}
+.tabs{display:flex;gap:2px;padding-top:2px}
+.tab{padding:7px 13px;border-radius:7px 7px 0 0;border:1px solid transparent;border-bottom:none;font-size:12px;font-weight:500;color:var(--text3);cursor:pointer;transition:all .12s;background:transparent;font-family:var(--sans)}
+.tab:hover{color:var(--text2)}
+.tab.act{background:var(--bg);border-color:var(--border);border-bottom:1px solid var(--bg);color:var(--text);margin-bottom:-1px}
+.tc{flex:1;overflow-y:auto;padding:14px 18px}
+.tc::-webkit-scrollbar{width:4px}
+.tc::-webkit-scrollbar-thumb{background:var(--panel3);border-radius:2px}
+.tp{display:none}
+.tp.act{display:block}
+/* Video / repost grid */
+.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.vcard{background:var(--panel2);border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:all .15s;display:block;text-decoration:none;color:inherit}
+.vcard:hover{border-color:var(--acc-b);transform:translateY(-2px)}
+.vcard-th{aspect-ratio:9/16;background:var(--panel3);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.vcard-th img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.vcard-th-ico{font-size:22px;opacity:.25;z-index:0}
+.vcard-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,transparent 55%);display:flex;flex-direction:column;justify-content:flex-end;padding:7px;z-index:1}
+.vcard-views{font-size:11px;font-weight:700;color:#fff;font-family:var(--mono)}
+.vcard-repost-badge{position:absolute;top:6px;right:6px;background:rgba(168,85,247,.85);border-radius:4px;padding:2px 5px;font-size:9px;color:#fff;font-weight:600;z-index:2}
+.vcard-body{padding:7px}
+.vcard-desc{font-size:10px;color:var(--text2);line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-bottom:5px}
+.vstats{display:flex;gap:8px}
+.vs{font-size:9px;color:var(--text3)}
+/* info rows */
+.card{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:11px 13px;margin-bottom:10px}
+.card h4{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px}
+.ri{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);gap:12px}
+.ri:last-child{border-bottom:none}
+.ri-t{font-size:12px;color:var(--text);font-weight:500}
+.ri-s{font-size:10px;color:var(--text3);margin-top:1px}
+.ri-v{font-size:11px;font-family:var(--mono);color:var(--text2);background:var(--panel3);border:1px solid var(--border);border-radius:5px;padding:3px 9px;white-space:nowrap;flex-shrink:0}
+/* chart */
+.crow{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.clbl{font-size:10px;color:var(--text3);width:80px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cbw{flex:1;height:12px;background:var(--panel3);border-radius:3px;overflow:hidden}
+.cbf{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--acc),var(--pink))}
+.cv{font-size:10px;font-family:var(--mono);color:var(--text2);width:55px;text-align:right;flex-shrink:0}
+/* log */
+.lw{background:var(--panel2);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.le{display:flex;gap:10px;padding:7px 12px;border-bottom:1px solid var(--border);font-size:11px;transition:background .1s}
+.le:hover{background:var(--panel3)}
+.le:last-child{border-bottom:none}
+.le-ts{color:var(--text3);font-family:var(--mono);min-width:60px;flex-shrink:0}
+.le-ico{width:16px;text-align:center;flex-shrink:0}
+.le-tx{color:var(--text2);flex:1}
+.ev-up .le-tx{color:var(--grn)}.ev-dn .le-tx{color:var(--red)}
+.ev-new .le-tx{color:var(--acc)}.ev-rep .le-tx{color:var(--pink)}
+.ev-err .le-tx{color:var(--red)}.ev-inf .le-tx{color:var(--text3)}
+.lnil{padding:20px;text-align:center;color:var(--text3);font-size:12px}
+/* notifs */
+.notifs{position:fixed;bottom:16px;right:16px;z-index:100;display:flex;flex-direction:column;gap:7px;max-width:320px}
+.notif{background:var(--panel2);border:1px solid var(--border2);border-radius:8px;padding:9px 13px;display:flex;align-items:flex-start;gap:9px;box-shadow:0 4px 24px rgba(0,0,0,.6);animation:nfi .2s ease;transition:opacity .3s;cursor:pointer}
+@keyframes nfi{from{transform:translateX(12px);opacity:0}}
+.notif.ev-up{border-left:3px solid var(--grn)}.notif.ev-dn{border-left:3px solid var(--red)}
+.notif.ev-new{border-left:3px solid var(--acc)}.notif.ev-rep{border-left:3px solid var(--pink)}
+.notif.ev-sub{border-left:3px solid var(--teal)}
+.notif-ico{font-size:14px;flex-shrink:0;margin-top:1px}
+.notif-nm{font-size:11px;font-weight:600;color:var(--text);margin-bottom:2px}
+.notif-mg{font-size:11px;color:var(--text2)}
+.spin{display:inline-block;width:11px;height:11px;border:2px solid var(--border2);border-top-color:var(--acc);border-radius:50%;animation:sp .6s linear infinite;vertical-align:middle;margin-right:4px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.err-card{background:var(--red-d);border:1px solid rgba(248,113,113,.2);border-radius:8px;padding:12px 14px;font-size:12px;color:var(--red);line-height:1.6}
+.empty-tab{padding:30px 0;text-align:center;color:var(--text3);font-size:12px}
+</style>
+</head>
+<body>
+<div class="notifs" id="notifs"></div>
+<header>
+  <div class="logo">
+    <div class="logo-ic">🎵</div>
+    <div><div class="logo-n">TikTrack</div><div class="logo-s">tiktok tracker</div></div>
+  </div>
+  <div class="h-right">
+    <div class="live-pill"><div class="ld" id="ld"></div><span id="llbl">IDLE</span></div>
+    <button class="hbtn" onclick="toggleSnd()" id="sndBtn">🔔 Звук</button>
+  </div>
+</header>
+<div class="layout">
+  <div class="sb">
+    <div class="sb-hd"><span class="sb-ttl">Профили</span><span class="sb-cnt" id="cnt">0</span></div>
+    <div class="sb-list" id="sbList"><div class="sb-nil">Нет профилей<br>Добавь ниже ↓</div></div>
+    <div class="sb-bt">
+      <input class="ainp" id="addUrl" placeholder="@никнейм или tiktok.com/..."/>
+      <button class="abtn" onclick="addProfile()">+ Добавить профиль</button>
+    </div>
+  </div>
+  <div class="main">
+    <div class="empty" id="emptyEl">
+      <div class="e-ico">🎵</div>
+      <div style="font-size:13px;color:var(--text3)">Добавь TikTok профиль слева</div>
+      <div style="font-size:11px;color:var(--text3);opacity:.6">Вставь @ник или ссылку</div>
+    </div>
+    <div class="detail" id="detailEl" style="display:none">
+      <div class="dh">
+        <div class="dh-top">
+          <div class="d-av-wrap">
+            <div class="d-av" id="dAv"><div class="d-av-l" id="dAvL">?</div></div>
+          </div>
+          <div class="d-info">
+            <div class="d-name" id="dName">—</div>
+            <div class="d-handle" id="dHandle"></div>
+            <div class="d-bio" id="dBio"></div>
+            <div class="d-pills" id="dPills"></div>
+          </div>
+          <div class="d-acts">
+            <button class="dbtn acc" onclick="forceRefresh()">↻</button>
+            <a class="dbtn" id="dLink" href="#" target="_blank" style="text-decoration:none">TikTok ↗</a>
+          </div>
+        </div>
+        <div class="sstrip" id="sstrip"></div>
+        <div class="tabs">
+          <button class="tab act" data-tab="videos">📹 Видео</button>
+          <button class="tab" data-tab="reposts">🔁 Репосты</button>
+          <button class="tab" data-tab="stats">📊 Статистика</button>
+          <button class="tab" data-tab="log">📋 Журнал</button>
+        </div>
+      </div>
+      <div class="tc">
+        <div class="tp act" id="tp-videos"></div>
+        <div class="tp" id="tp-reposts"></div>
+        <div class="tp" id="tp-stats"></div>
+        <div class="tp" id="tp-log"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+// ── API — tikwm.com ──────────────────────────────────────────────────────
+const TIKWM = 'https://www.tikwm.com/api';
+
+// tikwm works with POST + form-data. We send via multiple proxies.
+// allorigins /get wraps response in {contents:"..."} — use for GET
+// For POST we use corsproxy.io and codetabs
+async function apiCall(path, params={}){
+  const qs = new URLSearchParams(params);
+  const target = `${TIKWM}${path}`;
+
+  function parse(text){
+    if(!text || text.trimStart().startsWith('<'))
+      throw new Error('Прокси вернул HTML вместо JSON');
+    const d = JSON.parse(text);
+    if(d.code !== undefined && d.code !== 0)
+      throw new Error(d.msg || `code ${d.code}`);
+    return d.data !== undefined ? d.data : d;
+  }
+
+  // Strategy 1: POST via corsproxy.io (handles POST properly)
+  try{
+    const r = await fetch(`https://corsproxy.io/?${encodeURIComponent(target)}`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/x-www-form-urlencoded'},
+      body: qs.toString(),
+      signal: AbortSignal.timeout(14000),
+    });
+    if(r.ok){ const t=await r.text(); return parse(t); }
+  }catch(e){ if(e.message.startsWith('code '))throw e; }
+
+  // Strategy 2: GET via allorigins /get (wraps in {contents})
+  try{
+    const r = await fetch(
+      `https://api.allorigins.win/get?url=${encodeURIComponent(target+'?'+qs)}`,
+      {signal: AbortSignal.timeout(14000)}
+    );
+    if(r.ok){
+      const w = await r.json();
+      if(w.contents && !w.contents.trimStart().startsWith('<'))
+        return parse(w.contents);
+    }
+  }catch(e){ if(e.message.startsWith('code '))throw e; }
+
+  // Strategy 3: POST via codetabs
+  try{
+    const r = await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(target)}`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/x-www-form-urlencoded'},
+      body: qs.toString(),
+      signal: AbortSignal.timeout(14000),
+    });
+    if(r.ok){ const t=await r.text(); if(!t.startsWith('<')) return parse(t); }
+  }catch(e){ if(e.message.startsWith('code '))throw e; }
+
+  // Strategy 4: GET via thingproxy
+  try{
+    const r = await fetch(
+      `https://thingproxy.freeboard.io/fetch/${target}?${qs}`,
+      {signal: AbortSignal.timeout(14000)}
+    );
+    if(r.ok){ const t=await r.text(); if(!t.startsWith('<')) return parse(t); }
+  }catch(e){ if(e.message.startsWith('code '))throw e; }
+
+  throw new Error('Все прокси недоступны для этого запроса');
+}
+
+// Alias
+const apiGet = apiCall;
+
+
+async function getUser(username){
+  return apiGet('/user/info', {unique_id: username});
+}
+async function getUserVideos(username){
+  return apiGet('/user/posts', {unique_id: username, count: 30, cursor: 0});
+}
+async function getUserReposts(username){
+  try{ return apiGet('/user/repost', {unique_id: username, count: 30, cursor: 0}); }
+  catch{ return null; }
+}
+
+// tikwm /user/info returns:
+// { fans, following, heart, video_count, user_info:{uid,unique_id,nickname,avatar_thumb,signature,...} }
+function mapUser(data){
+  if(!data) return null;
+  const u = data.user || data;
+  const s = data.stats || data;
+  return {
+    uid:      u.id || u.uid || '',
+    secUid:   u.secUid || u.sec_uid || '',
+    username: u.uniqueId || u.unique_id || '',
+    nickname: u.nickname || u.uniqueId || '',
+    avatar:   u.avatarLarger || u.avatarMedium || u.avatarThumb
+           || u.avatar_larger || u.avatar_medium || u.avatar_thumb || '',
+    bio:      u.signature || '',
+    verified: !!(u.verified || u.customVerify),
+    privateAccount: !!(u.privateAccount || u.secret),
+    region:   u.region || '',
+    followers: +(s.followerCount ?? s.fans         ?? s.follower_count ?? 0),
+    following: +(s.followingCount ?? s.following   ?? s.following_count ?? 0),
+    likes:     +(s.heartCount     ?? s.heart       ?? s.total_favorited ?? 0),
+    videos:    +(s.videoCount     ?? s.video_count ?? 0),
+    friends:   +(s.friendCount    ?? s.friends_count ?? 0),
+  };
+}
+
+// tikwm /user/posts returns: { videos:[{video_id,title,cover,play_count,...}], cursor, hasMore }
+function mapVideos(data){
+  const items = Array.isArray(data) ? data : (data?.videos || data?.itemList || data?.items || []);
+  if(!items?.length) return [];
+  return items.filter(Boolean).map(v => ({
+    id:         v.video_id || v.id || '',
+    desc:       (v.title || v.desc || v.caption || '').trim(),
+    createTime: +(v.create_time || v.createTime || 0),
+    plays:      +(v.play_count   ?? v.playCount  ?? v.plays    ?? 0),
+    likes:      +(v.digg_count   ?? v.diggCount  ?? v.likes    ?? 0),
+    comments:   +(v.comment_count ?? v.commentCount ?? v.comments ?? 0),
+    shares:     +(v.share_count  ?? v.shareCount ?? v.shares   ?? 0),
+    cover:      v.cover || v.origin_cover || v.ai_dynamic_cover || '',
+    duration:   +(v.duration || 0),
+  })).sort((a,b) => b.createTime - a.createTime);
+}
+
+// ── State ─────────────────────────────────────────────────────────────────
+let soundOn=true, selId=null, activeTab='videos', nid=0;
+const DB = new Map();
+const LS = 'tttrack_v3';
+const $ = id => document.getElementById(id);
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const now = () => new Date();
+const clock = () => now().toTimeString().slice(0,8);
+
+function fmtN(n){
+  n=+n||0;
+  if(n>=1e9) return (n/1e9).toFixed(1)+'B';
+  if(n>=1e6) return (n/1e6).toFixed(1)+'M';
+  if(n>=1e3) return (n/1e3).toFixed(1)+'K';
+  return ''+n;
+}
+function fmtDelta(d){
+  if(!d) return '';
+  return (d>0?'▲+':'▼') + fmtN(Math.abs(d));
+}
+function normUser(raw){
+  raw = raw.trim();
+  if(raw.startsWith('@')) raw = raw.slice(1);
+  if(raw.startsWith('http')){
+    const m = raw.match(/tiktok\.com\/@([^/?#\s]+)/);
+    if(m) return m[1];
+  }
+  return raw;
+}
+
+// ── Sound ────────────────────────────────────────────────────────────────
+let actx = null;
+function tone(pp){
+  if(!soundOn) return;
+  try{
+    if(!actx) actx = new(window.AudioContext||window.webkitAudioContext)();
+    pp.forEach(([f,t,d=.15])=>{
+      const o=actx.createOscillator(), g=actx.createGain();
+      o.connect(g); g.connect(actx.destination);
+      o.frequency.value=f;
+      g.gain.setValueAtTime(.1,actx.currentTime+t);
+      g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+t+d);
+      o.start(actx.currentTime+t); o.stop(actx.currentTime+t+d);
+    });
+  }catch{}
+}
+const SFX = {
+  up:     ()=>tone([[600,0],[900,.08],[1200,.15]]),
+  dn:     ()=>tone([[400,0],[260,.12]]),
+  newvid: ()=>tone([[523,0],[659,.08],[784,.15],[1046,.22]]),
+  rep:    ()=>tone([[700,0],[700,.1],[1000,.18]]),
+};
+function toggleSnd(){ soundOn=!soundOn; $('sndBtn').textContent=soundOn?'🔔 Звук':'🔇 Звук'; }
+
+// ── Notifications ─────────────────────────────────────────────────────────
+function notify(type, name, msg, url){
+  const icons={up:'📈',dn:'📉',new:'🎬',rep:'🔁',err:'⚠️'};
+  const el = document.createElement('div');
+  el.className = `notif ev-${type}`;
+  el.innerHTML = `<div class="notif-ico">${icons[type]||'📢'}</div><div><div class="notif-nm">${esc(name)}</div><div class="notif-mg">${esc(msg)}</div></div>`;
+  if(url) el.onclick = ()=>window.open(url,'_blank');
+  $('notifs').appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; setTimeout(()=>el.remove(),350); }, 6000);
+}
+function addLog(p, type, text){ p.log.unshift({type,text,ts:clock()}); if(p.log.length>200) p.log.pop(); }
+
+// ── Fetch one profile ─────────────────────────────────────────────────────
+async function fetchOne(id){
+  const p = DB.get(id); if(!p||p.busy) return;
+  p.busy = true; renderSidebar();
+
+  try{
+    // 1. Get user info
+    const userData = await getUser(p.username);
+    const userInfo = mapUser(userData);
+
+    if(!userInfo || !userInfo.username){
+      throw new Error('Пользователь не найден или профиль приватный');
+    }
+
+    p.error = null;
+
+    // Save prev for delta
+    const prev = {
+      followers: p.followers, likes: p.likes, videos: p.videos,
+      firstVid: p.videos_list[0]?.id, firstRep: p.reposts[0]?.id,
+    };
+
+    // Update profile data
+    p.uid        = userInfo.uid || p.uid;
+    p.secUid     = userInfo.secUid || p.secUid;
+    p.nickname   = userInfo.nickname || p.username;
+    p.avatar     = userInfo.avatar || p.avatar;
+    p.bio        = userInfo.bio;
+    p.verified   = userInfo.verified;
+    p.privateAccount = userInfo.privateAccount;
+    p.region     = userInfo.region;
+    p.followers  = userInfo.followers;
+    p.following  = userInfo.following;
+    p.likes      = userInfo.likes;
+    p.videos     = userInfo.videos;
+    p.friends    = userInfo.friends;
+
+    // 2. Get videos
+    if(!p.privateAccount){
+      try{
+        const vData = await getUserVideos(p.username);
+        const mapped = mapVideos(vData);
+        if(mapped.length) p.videos_list = mapped;
+      }catch(e){ addLog(p,'ev-err','Видео: '+e.message); }
+
+      // 3. Get reposts
+      try{
+        const rData = await getUserReposts(p.username);
+        if(rData){ const mapped = mapVideos(rData); if(mapped.length) p.reposts = mapped; }
+      }catch{ /* reposts may not be available */ }
+    }
+
+    // ── Events ────────────────────────────────────────────────────────
+    if(prev.followers !== null){
+      const fd = p.followers - prev.followers;
+      if(fd !== 0){
+        const type = fd>0 ? 'ev-up' : 'ev-dn';
+        addLog(p, type, `${fd>0?'▲':'▼'} Подписчики: ${fd>0?'+':''}${fmtN(fd)} → ${fmtN(p.followers)}`);
+        if(Math.abs(fd)>=5){ fd>0?SFX.up():SFX.dn(); notify(fd>0?'up':'dn', p.nickname, `${fd>0?'+':''}${fmtN(fd)} подписчиков`); }
+      }
+      const ld = p.likes - prev.likes;
+      if(Math.abs(ld)>=10) addLog(p, ld>0?'ev-up':'ev-dn', `${ld>0?'▲':'▼'} Лайки: ${ld>0?'+':''}${fmtN(ld)} → ${fmtN(p.likes)}`);
+
+      if(p.videos_list[0]?.id && prev.firstVid && p.videos_list[0].id !== prev.firstVid){
+        const v = p.videos_list[0];
+        addLog(p,'ev-new',`🎬 Новое видео: ${v.desc.slice(0,60)||'(без описания)'}`);
+        SFX.newvid();
+        notify('new', p.nickname, v.desc.slice(0,55)||'Новое видео', `https://www.tiktok.com/@${p.username}/video/${v.id}`);
+      }
+      if(p.reposts[0]?.id && prev.firstRep && p.reposts[0].id !== prev.firstRep){
+        const r = p.reposts[0];
+        addLog(p,'ev-rep',`🔁 Новый репост: ${r.desc.slice(0,55)||'(без описания)'}`);
+        SFX.rep();
+        notify('rep', p.nickname, r.desc.slice(0,50)||'Новый репост');
+      }
+    }else{
+      addLog(p,'ev-inf',`✓ Загружен: ${fmtN(p.followers)} подписчиков, ${p.videos_list.length} видео`);
+    }
+
+    p.delta = {
+      followers: prev.followers!==null ? p.followers-prev.followers : 0,
+      likes:     prev.likes!==null     ? p.likes-prev.likes         : 0,
+    };
+
+    saveProfiles();
+
+  }catch(e){
+    p.error = e.message;
+    addLog(p,'ev-err','⚠ '+e.message);
+  }
+
+  p.busy = false;
+  p.lastFetch = now();
+  p.nextFetch = new Date(now().getTime()+60000);
+  if(p.timer) clearTimeout(p.timer);
+  p.timer = setTimeout(()=>fetchOne(id), 60000);
+  renderSidebar();
+  if(id===selId) renderDetail(id);
+}
+
+// ── Add / Remove ──────────────────────────────────────────────────────────
+function addProfile(){
+  const raw = $('addUrl').value.trim(); if(!raw) return;
+  const username = normUser(raw); if(!username) return;
+  for(const[,p] of DB){ if(p.username===username){ selectProfile(p.id); return; } }
+  const id = nid++;
+  DB.set(id,{
+    id, username, nickname:username, secUid:'', uid:'', avatar:'', bio:'',
+    verified:false, privateAccount:false, region:'',
+    followers:null, following:null, likes:null, videos:null, friends:null,
+    videos_list:[], reposts:[], delta:{followers:0,likes:0},
+    log:[], busy:false, error:null, lastFetch:null, nextFetch:null, timer:null,
+  });
+  $('addUrl').value = '';
+  renderSidebar(); selectProfile(id); fetchOne(id); updateGlobal(); saveProfiles();
+}
+
+function removeProfile(id){
+  const p = DB.get(id); if(p?.timer) clearTimeout(p.timer); DB.delete(id);
+  if(selId===id){ selId=null; $('emptyEl').style.display=''; $('detailEl').style.display='none'; }
+  renderSidebar(); updateGlobal(); saveProfiles();
+}
+
+function forceRefresh(){
+  if(selId==null) return;
+  const p = DB.get(selId); if(!p) return;
+  if(p.timer) clearTimeout(p.timer);
+  fetchOne(selId);
+}
+
+// ── Countdown tick ────────────────────────────────────────────────────────
+setInterval(()=>{
+  if(selId==null) return;
+  const p = DB.get(selId); if(!p?.nextFetch) return;
+  const cdEl = $('cd-val'); if(!cdEl) return;
+  const s = Math.max(0, Math.round((p.nextFetch-now())/1000));
+  cdEl.textContent = `${s}с`;
+}, 1000);
+
+// ── Sidebar ───────────────────────────────────────────────────────────────
+function renderSidebar(){
+  const list = $('sbList'); list.innerHTML='';
+  if(!DB.size){ list.innerHTML='<div class="sb-nil">Нет профилей<br>Добавь ниже ↓</div>'; $('cnt').textContent='0'; return; }
+  $('cnt').textContent = DB.size;
+  DB.forEach((p,id)=>{
+    const sub = p.error ? '⚠ '+p.error.slice(0,26)
+      : p.busy&&!p.lastFetch ? '⟳ Загрузка...'
+      : p.followers!==null ? `👥 ${fmtN(p.followers)} · ❤️ ${fmtN(p.likes)}`
+      : '...';
+    const el = document.createElement('div');
+    el.className = `pi${selId===id?' sel':''}`;
+    el.onclick = ()=>selectProfile(id);
+    const avHtml = p.avatar
+      ? `<img src="${esc(p.avatar)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div class="pi-av-l" style="display:none">${(p.username[0]||'?').toUpperCase()}</div>`
+      : `<div class="pi-av-l">${(p.username[0]||'?').toUpperCase()}</div>`;
+    el.innerHTML = `
+      <div class="pi-av">${avHtml}${p.verified?'<div class="pi-vbadge">✓</div>':''}</div>
+      <div class="pi-info">
+        <div class="pi-n">@${esc(p.username)}</div>
+        <div class="pi-s" style="color:${p.error?'var(--red)':'var(--text3)'}">${esc(sub)}</div>
+      </div>
+      <button class="pi-del" onclick="event.stopPropagation();removeProfile(${id})">✕</button>`;
+    list.appendChild(el);
+  });
+}
+
+function updateGlobal(){
+  const on = DB.size>0; $('ld').className='ld'+(on?' on':'');
+  const c = DB.size; $('llbl').textContent=on?`${c} профил${c===1?'ь':c<5?'я':'ей'}`:'IDLE';
+}
+function selectProfile(id){
+  selId=id; $('emptyEl').style.display='none'; $('detailEl').style.display='flex';
+  renderSidebar(); renderDetail(id);
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    activeTab = t.dataset.tab;
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('act'));
+    document.querySelectorAll('.tp').forEach(x=>x.classList.remove('act'));
+    t.classList.add('act'); $(`tp-${activeTab}`)?.classList.add('act');
+    renderTab(activeTab);
+  });
+});
+
+// ── Detail header ─────────────────────────────────────────────────────────
+function renderDetail(id){
+  const p = DB.get(id); if(!p) return;
+  const dav = $('dAv'); $('dAvL').textContent = (p.username[0]||'?').toUpperCase();
+  let img = dav.querySelector('img');
+  if(p.avatar){
+    if(!img){ img=document.createElement('img'); dav.insertBefore(img,dav.firstChild); }
+    if(img.dataset.src!==p.avatar){
+      img.dataset.src=p.avatar; img.src=p.avatar;
+      img.onload=()=>{ img.style.display='block'; $('dAvL').style.display='none'; };
+      img.onerror=()=>{ img.style.display='none'; $('dAvL').style.display='flex'; };
+    }
+  }
+  const df=p.delta?.followers||0, dl=p.delta?.likes||0;
+  $('dName').innerHTML = esc(p.nickname||('@'+p.username))+(p.verified?` <span class="d-verified">✓ Верифицирован</span>`:'');
+  $('dHandle').textContent = `@${p.username}`+(p.uid?` · ID: ${p.uid}`:'');
+  $('dBio').textContent = p.bio||'';
+  $('dLink').href = `https://www.tiktok.com/@${p.username}`;
+  const pl = $('dPills'); pl.innerHTML='';
+  pl.innerHTML += `<span class="pill ${p.privateAccount?'p-priv':'p-pub'}">${p.privateAccount?'🔒 Приватный':'🌐 Публичный'}</span>`;
+  if(p.region) pl.innerHTML+=`<span class="pill p-tag">🌍 ${esc(p.region)}</span>`;
+  if(p.busy) pl.innerHTML+=`<span class="spin"></span>`;
+  if(p.error) pl.innerHTML+=`<span class="pill p-priv">⚠ ${esc(p.error.slice(0,50))}</span>`;
+  const L = p.followers!==null;
+  $('sstrip').innerHTML=`
+    <div class="sstat"><div class="sval">${L?fmtN(p.followers):'—'}</div><div class="slbl">Подписчики</div><div class="sdelta ${df>0?'du':df<0?'dd':''}">${fmtDelta(df)}</div></div>
+    <div class="sstat"><div class="sval">${L?fmtN(p.following):'—'}</div><div class="slbl">Подписки</div><div class="sdelta"></div></div>
+    <div class="sstat"><div class="sval">${L?fmtN(p.likes):'—'}</div><div class="slbl">Лайки</div><div class="sdelta ${dl>0?'du':dl<0?'dd':''}">${fmtDelta(dl)}</div></div>
+    <div class="sstat"><div class="sval">${L?fmtN(p.videos):'—'}</div><div class="slbl">Видео</div><div class="sdelta"></div></div>
+    <div class="sstat"><div class="sval" id="cd-val" style="font-size:12px;color:var(--text3)">—</div><div class="slbl">Обновление</div><div class="sdelta"></div></div>`;
+  renderTab(activeTab);
+}
+
+// ── Video card ────────────────────────────────────────────────────────────
+function videoCard(v, username, isRepost=false){
+  const url=`https://www.tiktok.com/@${username}/video/${esc(v.id)}`;
+  return `<a href="${url}" target="_blank" class="vcard">
+    <div class="vcard-th">
+      ${v.cover?`<img src="${esc(v.cover)}" loading="lazy" onerror="this.style.display='none'"/>`:''}
+      <div class="vcard-th-ico">▶</div>
+      <div class="vcard-ov"><div class="vcard-views">▶ ${fmtN(v.plays)}</div></div>
+      ${isRepost?'<div class="vcard-repost-badge">🔁 РЕПОСТ</div>':''}
+    </div>
+    <div class="vcard-body">
+      <div class="vcard-desc">${esc(v.desc)||'(без описания)'}</div>
+      <div class="vstats">
+        <span class="vs">❤️${fmtN(v.likes)}</span>
+        <span class="vs">💬${fmtN(v.comments)}</span>
+        <span class="vs">↗${fmtN(v.shares)}</span>
+      </div>
+    </div>
+  </a>`;
+}
+
+// ── Tabs content ──────────────────────────────────────────────────────────
+function renderTab(tab){
+  const p = DB.get(selId); if(!p) return;
+  const el = $(`tp-${tab}`); if(!el) return;
+
+  if(tab==='videos'){
+    if(p.error&&!p.videos_list.length){ el.innerHTML=`<div class="err-card">⚠ ${esc(p.error)}</div>`; return; }
+    if(!p.videos_list.length){ el.innerHTML=`<div class="empty-tab">${p.busy?'⟳ Загружаю...':p.privateAccount?'🔒 Приватный профиль':'Видео не найдены'}</div>`; return; }
+    el.innerHTML=`<div class="vgrid">${p.videos_list.slice(0,30).map(v=>videoCard(v,p.username,false)).join('')}</div>`;
+  }
+
+  else if(tab==='reposts'){
+    if(!p.reposts.length){ el.innerHTML=`<div class="empty-tab">${p.busy?'⟳ Ищу репосты...':p.privateAccount?'🔒 Приватный профиль':'Репосты не найдены'}</div>`; return; }
+    el.innerHTML=`<div class="vgrid">${p.reposts.slice(0,30).map(v=>videoCard(v,p.username,true)).join('')}</div>`;
+  }
+
+  else if(tab==='stats'){
+    const L=p.followers!==null;
+    const ratio=L&&p.followers>0?(p.likes/p.followers).toFixed(2):'—';
+    const vl=p.videos_list;
+    const avgV=vl.length?fmtN(Math.round(vl.reduce((s,v)=>s+v.plays,0)/vl.length)):'—';
+    const avgL=vl.length?fmtN(Math.round(vl.reduce((s,v)=>s+v.likes,0)/vl.length)):'—';
+    const top=vl.reduce((b,v)=>v.plays>=(b?.plays||0)?v:b,null);
+    const top5=vl.slice(0,5); const mx=top5.length?Math.max(...top5.map(v=>v.plays),1):1;
+    el.innerHTML=`
+      <div class="card"><h4>Статистика</h4>
+        <div class="ri"><div><div class="ri-t">Подписчики</div></div><div class="ri-v">${L?fmtN(p.followers):'—'}</div></div>
+        <div class="ri"><div><div class="ri-t">Подписки</div></div><div class="ri-v">${L?fmtN(p.following):'—'}</div></div>
+        <div class="ri"><div><div class="ri-t">Всего лайков</div></div><div class="ri-v">${L?fmtN(p.likes):'—'}</div></div>
+        <div class="ri"><div><div class="ri-t">Видео</div></div><div class="ri-v">${L?p.videos:'—'}</div></div>
+        <div class="ri"><div><div class="ri-t">Репосты</div></div><div class="ri-v">${p.reposts.length||'?'}</div></div>
+        <div class="ri"><div><div class="ri-t">Лайков / подписчик</div><div class="ri-s">Engagement ratio</div></div><div class="ri-v">${ratio}</div></div>
+        <div class="ri"><div><div class="ri-t">Avg просмотры</div></div><div class="ri-v">${avgV}</div></div>
+        <div class="ri"><div><div class="ri-t">Avg лайки</div></div><div class="ri-v">${avgL}</div></div>
+        ${top?`<div class="ri"><div><div class="ri-t">Лучшее видео</div><div class="ri-s">${esc(top.desc.slice(0,40)||'...')}</div></div><div class="ri-v">${fmtN(top.plays)} 👁</div></div>`:''}
+      </div>
+      ${top5.length?`<div class="card"><h4>Топ-5 по просмотрам</h4><div style="margin-top:4px">${top5.map(v=>`
+        <div class="crow"><div class="clbl" title="${esc(v.desc)}">${esc(v.desc.slice(0,13)||'...')}</div>
+        <div class="cbw"><div class="cbf" style="width:${Math.round(v.plays/mx*100)}%"></div></div>
+        <div class="cv">${fmtN(v.plays)}</div></div>`).join('')}</div></div>`:''}
+      <div class="card"><h4>Профиль</h4>
+        <div class="ri"><div><div class="ri-t">Тип</div></div><div class="ri-v">${p.privateAccount?'🔒 Приватный':'🌐 Публичный'}</div></div>
+        ${p.verified?`<div class="ri"><div><div class="ri-t">Статус</div></div><div class="ri-v">✓ Верифицирован</div></div>`:''}
+        ${p.region?`<div class="ri"><div><div class="ri-t">Регион</div></div><div class="ri-v">${esc(p.region)}</div></div>`:''}
+        <div class="ri"><div><div class="ri-t">Обновление</div><div class="ri-s">Каждые 60 сек</div></div><div class="ri-v">${p.lastFetch?p.lastFetch.toTimeString().slice(0,8):'—'}</div></div>
+      </div>`;
+  }
+
+  else if(tab==='log'){
+    const cid=p.id;
+    const icons={'ev-up':'📈','ev-dn':'📉','ev-new':'🎬','ev-rep':'🔁','ev-err':'⚠️','ev-inf':'ℹ️'};
+    el.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span style="font-size:11px;color:var(--text3)">${p.log.length} событий</span>
+      <button class="dbtn" onclick="DB.get(${cid}).log=[];renderTab('log')" style="font-size:11px;height:26px">Очистить</button>
+    </div>
+    <div class="lw">${p.log.length
+      ?p.log.map(e=>`<div class="le ${e.type}"><span class="le-ts">${e.ts}</span><span class="le-ico">${icons[e.type]||'·'}</span><span class="le-tx">${esc(e.text)}</span></div>`).join('')
+      :'<div class="lnil">Пока нет событий...</div>'
+    }</div>`;
+  }
+}
+
+// ── LocalStorage ─────────────────────────────────────────────────────────
+function saveProfiles(){
+  try{
+    const d=[];
+    DB.forEach(p=>d.push({username:p.username,nickname:p.nickname,avatar:p.avatar,uid:p.uid,secUid:p.secUid}));
+    localStorage.setItem(LS,JSON.stringify(d));
+  }catch{}
+}
+function loadProfiles(){
+  try{
+    const raw=localStorage.getItem(LS); if(!raw) return;
+    let delay=0;
+    JSON.parse(raw).forEach(s=>{
+      const id=nid++;
+      DB.set(id,{
+        id,username:s.username,nickname:s.nickname||s.username,
+        secUid:s.secUid||'',uid:s.uid||'',avatar:s.avatar||'',bio:'',
+        verified:false,privateAccount:false,region:'',
+        followers:null,following:null,likes:null,videos:null,friends:null,
+        videos_list:[],reposts:[],delta:{followers:0,likes:0},
+        log:[],busy:false,error:null,lastFetch:null,nextFetch:null,timer:null,
+      });
+      DB.get(id).timer=setTimeout(()=>fetchOne(id),(delay++)*2500+300);
+    });
+    if(DB.size){ updateGlobal(); renderSidebar(); selId=DB.keys().next().value; setTimeout(()=>selectProfile(selId),100); }
+  }catch(e){ console.warn('loadProfiles:',e); }
+}
+
+$('addUrl').addEventListener('keydown',e=>{ if(e.key==='Enter') addProfile(); });
+// File:// check — show blocking overlay
+if(location.protocol==='file:'){
+  document.body.innerHTML=`
+    <div style="position:fixed;inset:0;background:#07080c;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;z-index:9999;font-family:Inter,sans-serif;padding:30px">
+      <div style="font-size:36px">⚠️</div>
+      <div style="font-size:18px;font-weight:700;color:#fff;text-align:center">Файл открыт локально</div>
+      <div style="font-size:13px;color:#8896a8;text-align:center;max-width:480px;line-height:1.7">
+        Браузер блокирует сетевые запросы с <code style="background:#12151f;padding:2px 6px;border-radius:4px;color:#a855f7">file://</code> протокола.<br>
+        Нужно загрузить файл на хостинг — это займёт 30 секунд.
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;align-items:center;width:100%;max-width:380px">
+        <a href="https://app.netlify.com/drop" target="_blank" style="display:block;width:100%;text-align:center;background:#a855f7;color:#fff;text-decoration:none;padding:12px;border-radius:8px;font-weight:600;font-size:14px">
+          🚀 Netlify Drop — перетащи файл сюда
+        </a>
+        <div style="font-size:11px;color:#3e4d60">или</div>
+        <a href="https://github.com" target="_blank" style="display:block;width:100%;text-align:center;background:#12151f;color:#a855f7;text-decoration:none;padding:12px;border-radius:8px;font-weight:600;font-size:14px;border:1px solid rgba(168,85,247,0.3)">
+          GitHub Pages — загрузи в репозиторий
+        </a>
+      </div>
+      <div style="font-size:11px;color:#3e4d60;text-align:center">
+        У тебя уже есть: <code style="color:#a855f7">legacylauncher111.github.io/track</code>
+      </div>
+    </div>`;
+}
+loadProfiles();
+</script>
+</body>
+</html>
