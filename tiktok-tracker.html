@@ -216,34 +216,68 @@ header{display:flex;align-items:center;gap:12px;padding:0 16px;height:48px;backg
   </div>
 </div>
 <script>
-// ── API layer — tikwm.com with CORS proxy fallback ───────────────────────
+// ── API layer — tikwm.com routed through CORS proxies ────────────────────
 const TIKWM = 'https://www.tikwm.com/api';
-const CORS_PROXIES = [
-  u => u, // direct first (works on GitHub Pages / Netlify)
-  u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
-  u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-  u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
-];
 
+// Each proxy has different response shape — handle each separately
 async function apiGet(path, params={}){
   const qs = new URLSearchParams(params).toString();
   const url = `${TIKWM}${path}${qs?'?'+qs:''}`;
-  for(const mk of CORS_PROXIES){
-    try{
-      const r = await fetch(mk(url), {signal: AbortSignal.timeout(12000)});
-      if(!r.ok) continue;
-      const text = await r.text();
-      if(!text || text.length < 5) continue;
-      const d = JSON.parse(text);
-      // tikwm returns code 0 for success, or just the data directly
-      if(d.code !== undefined && d.code !== 0) throw new Error(d.msg || `code ${d.code}`);
-      return d.data !== undefined ? d.data : d;
-    }catch(e){
-      if(e.message.startsWith('code ')) throw e; // real API error, don't retry
-      continue; // network/CORS error, try next proxy
-    }
+
+  // Helper: parse tikwm JSON and extract data
+  function parse(text){
+    const d = JSON.parse(text);
+    if(d.code !== undefined && d.code !== 0) throw new Error(d.msg||`code ${d.code}`);
+    return d.data !== undefined ? d.data : d;
   }
-  throw new Error('Не удалось загрузить данные. Убедись что сайт открыт по ссылке (не как локальный файл).');
+
+  // 1. allorigins /get — wraps response in {contents,status}
+  try{
+    const r = await fetch(
+      `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+      {signal: AbortSignal.timeout(14000)}
+    );
+    if(r.ok){
+      const wrapper = await r.json();
+      if(wrapper.contents && wrapper.contents.length > 10)
+        return parse(wrapper.contents);
+    }
+  }catch(e){ if(e.message.startsWith('code ')) throw e; }
+
+  // 2. codetabs proxy — returns raw text
+  try{
+    const r = await fetch(
+      `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+      {signal: AbortSignal.timeout(14000)}
+    );
+    if(r.ok){
+      const text = await r.text();
+      if(text && text.startsWith('{')) return parse(text);
+    }
+  }catch(e){ if(e.message.startsWith('code ')) throw e; }
+
+  // 3. thingproxy — returns raw text
+  try{
+    const r = await fetch(
+      `https://thingproxy.freeboard.io/fetch/${url}`,
+      {signal: AbortSignal.timeout(14000)}
+    );
+    if(r.ok){
+      const text = await r.text();
+      if(text && text.startsWith('{')) return parse(text);
+    }
+  }catch(e){ if(e.message.startsWith('code ')) throw e; }
+
+  // 4. direct (works when CORS is allowed)
+  try{
+    const r = await fetch(url, {signal: AbortSignal.timeout(12000)});
+    if(r.ok){
+      const text = await r.text();
+      if(text && text.startsWith('{')) return parse(text);
+    }
+  }catch(e){ if(e.message.startsWith('code ')) throw e; }
+
+  throw new Error('Все прокси недоступны. Попробуй позже или перейди на сайт.');
 }
 
 async function getUser(username){
